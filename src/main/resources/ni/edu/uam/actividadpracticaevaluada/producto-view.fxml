@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane style="-fx-background-color: #f8fafc;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.actividadpracticaevaluada.controller.ProductoController">
+
+    <padding>
+        <Insets bottom="8" left="8" right="8" top="8" />
+    </padding>
+
+    <!-- PANEL SUPERIOR: FILTROS Y BÚSQUEDA -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-background-color: #ffffff; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px;">
+            <BorderPane.margin>
+                <Insets bottom="8" />
+            </BorderPane.margin>
+
+            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569; -fx-font-size: 11px;" text="Búsqueda:" />
+            <TextField fx:id="txtBusqueda" prefHeight="25.0" prefWidth="150.0" promptText="Nombre o código..." style="-fx-font-size: 11px;" />
+
+            <Separator orientation="VERTICAL" />
+
+            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569; -fx-font-size: 11px;" text="Categoría:" />
+            <ComboBox fx:id="cmbFiltroCategoria" prefHeight="25.0" prefWidth="115.0" style="-fx-font-size: 11px;" />
+
+            <CheckBox fx:id="chkSoloStock" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" text="Solo con existencias" />
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <!-- Botones superiores -->
+            <Button onAction="#accionBuscar" style="-fx-background-color: #bfdbfe; -fx-text-fill: #1e3a8a; -fx-font-weight: bold; -fx-font-size: 11px; -fx-cursor: hand;" text="Buscar" />
+            <Button onAction="#accionLimpiarFiltros" style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-size: 11px; -fx-cursor: hand;" text="Limpiar Filtros" />
+            <Button onAction="#accionRecargar" style="-fx-background-color: #bbf7d0; -fx-text-fill: #14532d; -fx-font-weight: bold; -fx-font-size: 11px; -fx-cursor: hand;" text="Recargar" />
+        </HBox>
+    </top>
+
+    <!-- PANEL CENTRO: TABLEVIEW -->
+    <center>
+        <AnchorPane style="-fx-background-color: #ffffff; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px; -fx-padding: 4px;">
+            <TableView fx:id="tablaProductos" layoutX="10.0" layoutY="10.0" style="-fx-font-size: 11px;" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                <columns>
+                    <TableColumn fx:id="colId" prefWidth="40" text="ID" />
+                    <TableColumn fx:id="colCodigo" prefWidth="75" text="Código" />
+                    <TableColumn fx:id="colNombre" prefWidth="160" text="Nombre" />
+                    <TableColumn fx:id="colCategoria" prefWidth="95" text="Categoría" />
+                    <TableColumn fx:id="colPrecio" prefWidth="80" text="Precio (C$)" />
+                    <TableColumn fx:id="colStock" prefWidth="55" text="Stock" />
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
+        </AnchorPane>
+    </center>
+
+    <!-- PANEL DERECHO: FORMULARIO EN ANCHORPANE (Libre distribución) -->
+    <right>
+        <AnchorPane prefWidth="240.0" style="-fx-background-color: #ffffff; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px; -fx-padding: 10px;">
+            <BorderPane.margin>
+                <Insets left="8" />
+            </BorderPane.margin>
+
+            <!-- Título -->
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Datos del Producto" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+
+            <!-- Formulario Grid distribuido libremente -->
+            <GridPane hgap="6" vgap="8" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="65" prefWidth="70" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="110" />
+                </columnConstraints>
+
+                <Label style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;" text="ID Interno:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="txtId" editable="false" prefHeight="24.0" style="-fx-background-color: #f1f5f9; -fx-text-fill: #64748b; -fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 11px;" text="Código:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <TextField fx:id="txtCodigo" prefHeight="24.0" promptText="ej. P001" style="-fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 11px;" text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="txtNombre" prefHeight="24.0" promptText="Nombre producto" style="-fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 11px;" text="Categoría:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <ComboBox fx:id="cbCategoria" maxWidth="Infinity" prefHeight="24.0" promptText="Seleccionar" style="-fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 11px;" text="Precio (C$):" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <TextField fx:id="txtPrecio" prefHeight="24.0" promptText="0.00" style="-fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 11px;" text="Stock:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                <TextField fx:id="txtStock" prefHeight="24.0" promptText="0" style="-fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
+            </GridPane>
+
+            <!-- Botones CRUD anclados en la parte inferior del AnchorPane -->
+            <GridPane hgap="6" layoutX="37.0" layoutY="267.0" prefHeight="54.0" prefWidth="232.0" vgap="6" AnchorPane.bottomAnchor="109.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="37.0">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50" />
+                    <ColumnConstraints percentWidth="50" />
+                </columnConstraints>
+
+                <Button maxWidth="Infinity" onAction="#accionLimpiarFormulario" style="-fx-background-color: #e2e8f0; -fx-text-fill: #334155; -fx-font-size: 11px; -fx-cursor: hand;" text="Limpiar" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+
+                <Button maxWidth="Infinity" onAction="#accionGuardar" style="-fx-background-color: #bbf7d0; -fx-text-fill: #14532d; -fx-font-weight: bold; -fx-font-size: 11px; -fx-cursor: hand;" text="Guardar" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Button maxWidth="Infinity" onAction="#accionActualizar" style="-fx-background-color: #bae6fd; -fx-text-fill: #0369a1; -fx-font-weight: bold; -fx-font-size: 11px; -fx-cursor: hand;" text="Actualizar" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+
+                <Button maxWidth="Infinity" onAction="#accionEliminar" style="-fx-background-color: #fecdd3; -fx-text-fill: #9f1239; -fx-font-weight: bold; -fx-font-size: 11px; -fx-cursor: hand;" text="Eliminar" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
+            </GridPane>
+        </AnchorPane>
+    </right>
+
+    <!-- PANEL INFERIOR: BARRA DE ESTADO -->
+    <bottom>
+        <AnchorPane style="-fx-background-color: #ffffff; -fx-padding: 4px 10px; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px;">
+            <BorderPane.margin>
+                <Insets top="8" />
+            </BorderPane.margin>
+
+            <Label style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;" text="Estado: Conectado a PostgreSQL" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="2.0" />
+
+            <Label fx:id="lblContador" style="-fx-font-weight: bold; -fx-text-fill: #334155; -fx-font-size: 11px;" text="Registros visibles: 0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="2.0" />
+        </AnchorPane>
+    </bottom>
+
+</BorderPane>
