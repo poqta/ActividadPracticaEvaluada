@@ -22,7 +22,6 @@ import java.util.List;
  */
 public class ProductoController {
 
-    // Filtros superiores
     @FXML
     private TextField txtBusqueda;
     @FXML
@@ -32,9 +31,8 @@ public class ProductoController {
     @FXML
     private Label lblContador;
 
-    // Tabla principal y sus columnas
     @FXML
-    private TableView<Producto> tablaProductos;
+    private TableView<Producto> tblProductos;
     @FXML
     private TableColumn<Producto, Integer> colId;
     @FXML
@@ -48,7 +46,6 @@ public class ProductoController {
     @FXML
     private TableColumn<Producto, Integer> colStock;
 
-    // Controles del formulario
     @FXML
     private TextField txtId;
     @FXML
@@ -56,7 +53,7 @@ public class ProductoController {
     @FXML
     private TextField txtNombre;
     @FXML
-    private ComboBox<String> cbCategoria;
+    private ComboBox<String> cmbCategoria;
     @FXML
     private TextField txtPrecio;
     @FXML
@@ -64,16 +61,13 @@ public class ProductoController {
 
     private final ObservableList<Producto> listaProductos = FXCollections.observableArrayList();
 
-    /*
-     * Inicializa los componentes de la interfaz.
-     */
     @FXML
     public void initialize() {
         // Cargar opciones en ComboBox
         cmbFiltroCategoria.getItems().addAll("Todas", "Papelería", "Tecnología", "Accesorios");
         cmbFiltroCategoria.setValue("Todas");
 
-        cbCategoria.getItems().addAll("Papelería", "Tecnología", "Accesorios");
+        cmbCategoria.getItems().addAll("Papelería", "Tecnología", "Accesorios");
 
         // Configurar columnas de la tabla
         colId.setCellValueFactory(new PropertyValueFactory<>("idProducto"));
@@ -83,21 +77,20 @@ public class ProductoController {
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
         colStock.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
-        tablaProductos.setItems(listaProductos);
+        tblProductos.setItems(listaProductos);
 
         // Mostrar selección en el formulario lateral
-        tablaProductos.getSelectionModel().selectedItemProperty().addListener((obs, viejo, nuevo) -> {
+        tblProductos.getSelectionModel().selectedItemProperty().addListener((obs, viejo, nuevo) -> {
             if (nuevo != null) {
                 txtId.setText(String.valueOf(nuevo.getIdProducto()));
                 txtCodigo.setText(nuevo.getCodigo());
                 txtNombre.setText(nuevo.getNombre());
-                cbCategoria.setValue(nuevo.getCategoria());
+                cmbCategoria.setValue(nuevo.getCategoria());
                 txtPrecio.setText(nuevo.getPrecio().toString());
                 txtStock.setText(String.valueOf(nuevo.getStock()));
             }
         });
 
-        // Carga inicial
         recargarDatos();
     }
 
@@ -124,10 +117,10 @@ public class ProductoController {
         txtId.clear();
         txtCodigo.clear();
         txtNombre.clear();
-        cbCategoria.setValue(null);
+        cmbCategoria.setValue(null);
         txtPrecio.clear();
         txtStock.clear();
-        tablaProductos.getSelectionModel().clearSelection();
+        tblProductos.getSelectionModel().clearSelection();
     }
 
     /*
@@ -213,7 +206,7 @@ public class ProductoController {
         alerta.showAndWait();
     }
 
-    // Métodos de los botones del formulario (Pendientes para la Sesión 2/3)
+    // Métodos de los botones del formulario (Pendientes para la Sesión 2)
     @FXML private void accionGuardar() {}
     @FXML private void accionActualizar() {}
     @FXML private void accionEliminar() {}

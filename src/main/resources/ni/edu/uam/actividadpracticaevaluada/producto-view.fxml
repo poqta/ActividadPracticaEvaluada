@@ -10,7 +10,7 @@
         <Insets bottom="8" left="8" right="8" top="8" />
     </padding>
 
-    <!-- PANEL SUPERIOR: FILTROS Y BÚSQUEDA -->
+
     <top>
         <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-background-color: #ffffff; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px;">
             <BorderPane.margin>
@@ -29,17 +29,16 @@
 
             <Region HBox.hgrow="ALWAYS" />
 
-            <!-- Botones superiores -->
+
             <Button onAction="#accionBuscar" style="-fx-background-color: #bfdbfe; -fx-text-fill: #1e3a8a; -fx-font-weight: bold; -fx-font-size: 11px; -fx-cursor: hand;" text="Buscar" />
             <Button onAction="#accionLimpiarFiltros" style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-size: 11px; -fx-cursor: hand;" text="Limpiar Filtros" />
             <Button onAction="#accionRecargar" style="-fx-background-color: #bbf7d0; -fx-text-fill: #14532d; -fx-font-weight: bold; -fx-font-size: 11px; -fx-cursor: hand;" text="Recargar" />
         </HBox>
     </top>
 
-    <!-- PANEL CENTRO: TABLEVIEW -->
     <center>
         <AnchorPane style="-fx-background-color: #ffffff; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px; -fx-padding: 4px;">
-            <TableView fx:id="tablaProductos" layoutX="10.0" layoutY="10.0" style="-fx-font-size: 11px;" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+            <TableView fx:id="tblProductos" layoutX="10.0" layoutY="10.0" style="-fx-font-size: 11px;" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                 <columns>
                     <TableColumn fx:id="colId" prefWidth="40" text="ID" />
                     <TableColumn fx:id="colCodigo" prefWidth="75" text="Código" />
@@ -55,17 +54,16 @@
         </AnchorPane>
     </center>
 
-    <!-- PANEL DERECHO: FORMULARIO EN ANCHORPANE (Libre distribución) -->
     <right>
         <AnchorPane prefWidth="240.0" style="-fx-background-color: #ffffff; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px; -fx-padding: 10px;">
             <BorderPane.margin>
                 <Insets left="8" />
             </BorderPane.margin>
 
-            <!-- Título -->
+
             <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Datos del Producto" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
 
-            <!-- Formulario Grid distribuido libremente -->
+
             <GridPane hgap="6" vgap="8" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
                 <columnConstraints>
                     <ColumnConstraints minWidth="65" prefWidth="70" />
@@ -82,7 +80,7 @@
                 <TextField fx:id="txtNombre" prefHeight="24.0" promptText="Nombre producto" style="-fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                 <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 11px;" text="Categoría:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <ComboBox fx:id="cbCategoria" maxWidth="Infinity" prefHeight="24.0" promptText="Seleccionar" style="-fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <ComboBox fx:id="cmbCategoria" maxWidth="Infinity" prefHeight="24.0" promptText="Seleccionar" style="-fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
                 <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 11px;" text="Precio (C$):" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                 <TextField fx:id="txtPrecio" prefHeight="24.0" promptText="0.00" style="-fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
@@ -98,8 +96,7 @@
                <RowConstraints />
             </rowConstraints>
             </GridPane>
-
-            <!-- Botones CRUD anclados en la parte inferior del AnchorPane -->
+            
             <GridPane hgap="6" layoutX="37.0" layoutY="267.0" prefHeight="54.0" prefWidth="232.0" vgap="6" AnchorPane.bottomAnchor="109.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="37.0">
                 <columnConstraints>
                     <ColumnConstraints percentWidth="50" />
@@ -121,7 +118,6 @@
         </AnchorPane>
     </right>
 
-    <!-- PANEL INFERIOR: BARRA DE ESTADO -->
     <bottom>
         <AnchorPane style="-fx-background-color: #ffffff; -fx-padding: 4px 10px; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px;">
             <BorderPane.margin>
