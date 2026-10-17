@@ -97,7 +97,7 @@
             </rowConstraints>
             </GridPane>
             
-            <GridPane hgap="6" layoutX="37.0" layoutY="267.0" prefHeight="54.0" prefWidth="232.0" vgap="6" AnchorPane.bottomAnchor="109.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="37.0">
+            <GridPane hgap="6" layoutX="22.0" layoutY="263.0" prefHeight="54.0" prefWidth="190.0" vgap="6" AnchorPane.bottomAnchor="113.0" AnchorPane.leftAnchor="28.0" AnchorPane.rightAnchor="28.0">
                 <columnConstraints>
                     <ColumnConstraints percentWidth="50" />
                     <ColumnConstraints percentWidth="50" />

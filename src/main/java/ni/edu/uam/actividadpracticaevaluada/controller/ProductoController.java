@@ -5,21 +5,15 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import ni.edu.uam.actividadpracticaevaluada.database.ConexionBD;
 import ni.edu.uam.actividadpracticaevaluada.model.Producto;
+import ni.edu.uam.actividadpracticaevaluada.model.ProductoDAO;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-/*
- * Controlador de la interfaz gráfica (Avance Sesión 1).
- * Maneja la visualización en TableView, contador de registros y filtros de búsqueda.
- */
+
 public class ProductoController {
 
     @FXML
@@ -59,17 +53,19 @@ public class ProductoController {
     @FXML
     private TextField txtStock;
 
+    // Instancia del DAO y lista observable para reflejar cambios en la tabla
+    private final ProductoDAO productoDAO = new ProductoDAO();
     private final ObservableList<Producto> listaProductos = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        // Cargar opciones en ComboBox
+        // Llenar los combobox con las categorías de la guia
         cmbFiltroCategoria.getItems().addAll("Todas", "Papelería", "Tecnología", "Accesorios");
         cmbFiltroCategoria.setValue("Todas");
 
         cmbCategoria.getItems().addAll("Papelería", "Tecnología", "Accesorios");
 
-        // Configurar columnas de la tabla
+        // Conectar cada columna de la tabla con los getters de la clase Producto
         colId.setCellValueFactory(new PropertyValueFactory<>("idProducto"));
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
@@ -79,7 +75,7 @@ public class ProductoController {
 
         tblProductos.setItems(listaProductos);
 
-        // Mostrar selección en el formulario lateral
+        // Cuando el usuario toca una fila, pasa los datos a los campos de la derecha
         tblProductos.getSelectionModel().selectedItemProperty().addListener((obs, viejo, nuevo) -> {
             if (nuevo != null) {
                 txtId.setText(String.valueOf(nuevo.getIdProducto()));
@@ -99,6 +95,7 @@ public class ProductoController {
         recargarDatos();
     }
 
+    // Limpia los filtros superiores y trae todo otra vez
     @FXML
     private void accionLimpiarFiltros() {
         txtBusqueda.clear();
@@ -112,6 +109,7 @@ public class ProductoController {
         recargarDatos();
     }
 
+    // Deja en blanco las cajas de texto del formulario
     @FXML
     private void accionLimpiarFormulario() {
         txtId.clear();
@@ -123,12 +121,164 @@ public class ProductoController {
         tblProductos.getSelectionModel().clearSelection();
     }
 
-    /*
-     * Realiza la consulta directa a PostgreSQL y actualiza la lista y el contador.
-     */
+    // Metodo privado para revisar las validaciones (V1 a V9)
+    private String validarFormulario(boolean esEdicion) {
+        // V1: Validar tamaño del código
+        String cod = txtCodigo.getText() != null ? txtCodigo.getText().trim().toUpperCase() : "";
+        if (cod.isEmpty() || cod.length() > 10) {
+            return "V1: El código debe tener entre 1 y 10 caracteres.";
+        }
+
+        // V2: Validar tamaño del nombre
+        String nom = txtNombre.getText() != null ? txtNombre.getText().trim() : "";
+        if (nom.length() < 3 || nom.length() > 80) {
+            return "V2: El nombre debe tener entre 3 y 80 caracteres.";
+        }
+
+        // V3: Forzar selección de categoría
+        if (cmbCategoria.getValue() == null || cmbCategoria.getValue().isEmpty()) {
+            return "V3: Debe seleccionar una categoría.";
+        }
+
+        // V4: Chequear si el precio es un número válido
+        BigDecimal prec;
+        try {
+            prec = new BigDecimal(txtPrecio.getText().trim());
+        } catch (Exception e) {
+            return "V4: El precio debe ser un valor numérico válido.";
+        }
+
+        // V5: El precio no puede ser 0 ni negativo
+        if (prec.compareTo(BigDecimal.ZERO) <= 0) {
+            return "V5: El precio debe ser strictly mayor a 0.";
+        }
+
+        // V6: Que no se pase de 2 decimales
+        if (prec.scale() > 2 || prec.compareTo(new BigDecimal("99999999.99")) > 0) {
+            return "V6: El precio no debe exceder de 2 decimales ni el rango permitido.";
+        }
+
+        // V7 y V8: El stock debe ser entero y no negativo
+        try {
+            int st = Integer.parseInt(txtStock.getText().trim());
+            if (st < 0) return "V8: El stock no puede ser un valor negativo.";
+        } catch (NumberFormatException e) {
+            return "V7: El stock debe ser un número entero.";
+        }
+
+        // V9: Consultar en la BD si ya existe ese código
+        Integer idActual = esEdicion ? Integer.parseInt(txtId.getText()) : null;
+        try {
+            if (productoDAO.existeCodigo(cod, idActual)) {
+                return "V9: El código '" + cod + "' ya existe en el catálogo.";
+            }
+        } catch (SQLException e) {
+            return "Error de validación contra la base de datos.";
+        }
+
+        return null;
+    }
+
+    // Boton de guardar nuevo registro
+    @FXML
+    private void accionGuardar() {
+        String error = validarFormulario(false);
+        if (error != null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Validación de Datos", error);
+            return;
+        }
+
+        Producto p = new Producto(
+                null,
+                txtCodigo.getText().trim().toUpperCase(),
+                txtNombre.getText().trim(),
+                cmbCategoria.getValue(),
+                new BigDecimal(txtPrecio.getText().trim()),
+                Integer.parseInt(txtStock.getText().trim())
+        );
+
+        try {
+            productoDAO.insertar(p);
+            accionLimpiarFormulario();
+            recargarDatos();
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto guardado correctamente en PostgreSQL.");
+        } catch (SQLException e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error SQL", "Ocurrió un fallo al insertar el producto.");
+        }
+    }
+
+    // Boton de actualizar registro seleccionado
+    @FXML
+    private void accionActualizar() {
+        // V10: Verificar que hay un registro seleccionado
+        if (txtId.getText().isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "V10: Selección", "Debe seleccionar un registro de la tabla para editar.");
+            return;
+        }
+
+        String error = validarFormulario(true);
+        if (error != null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Validación de Datos", error);
+            return;
+        }
+
+        Producto p = new Producto(
+                Integer.parseInt(txtId.getText()),
+                txtCodigo.getText().trim().toUpperCase(),
+                txtNombre.getText().trim(),
+                cmbCategoria.getValue(),
+                new BigDecimal(txtPrecio.getText().trim()),
+                Integer.parseInt(txtStock.getText().trim())
+        );
+
+        try {
+            int filas = productoDAO.actualizar(p);
+            if (filas == 0) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Aviso", "El registro seleccionado ya no existe en la base de datos.");
+            } else {
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto actualizado correctamente.");
+            }
+            accionLimpiarFormulario();
+            recargarDatos();
+        } catch (SQLException e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error SQL", "No se pudo actualizar el registro.");
+        }
+    }
+
+    // Boton de eliminar
+    @FXML
+    private void accionEliminar() {
+        // V10: Obligar a seleccionar una fila primero
+        if (txtId.getText().isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "V10: Selección", "Debe seleccionar un producto para eliminar.");
+            return;
+        }
+
+        // Confirmacion antes de borrar
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Está seguro de eliminar este producto?", ButtonType.YES, ButtonType.NO);
+        Optional<ButtonType> resp = confirm.showAndWait();
+
+        if (resp.isPresent() && resp.get() == ButtonType.YES) {
+            try {
+                int id = Integer.parseInt(txtId.getText());
+                int filas = productoDAO.eliminar(id);
+                if (filas == 0) {
+                    mostrarAlerta(Alert.AlertType.WARNING, "Aviso", "El producto no existe o ya fue eliminado.");
+                } else {
+                    mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto eliminado correctamente de PostgreSQL.");
+                }
+                accionLimpiarFormulario();
+                recargarDatos();
+            } catch (SQLException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error SQL", "Error al eliminar el producto.");
+            }
+        }
+    }
+
+    // Trae los datos actualizados desde el DAO y refresca la tabla y el contador
     private void recargarDatos() {
         try {
-            List<Producto> datos = consultarProductosPostgreSQL(
+            List<Producto> datos = productoDAO.buscarYFiltrar(
                     txtBusqueda.getText(),
                     cmbFiltroCategoria.getValue(),
                     chkSoloStock.isSelected()
@@ -137,67 +287,16 @@ public class ProductoController {
             listaProductos.setAll(datos);
             lblContador.setText("Registros visibles: " + datos.size());
 
+            // Mensaje por si la búsqueda no trajo nada
             if (datos.isEmpty() && txtBusqueda.getText() != null && !txtBusqueda.getText().trim().isEmpty()) {
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Búsqueda", "Sin coincidencias para el criterio ingresado.");
             }
         } catch (SQLException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexión", "No se pudo conectar a la base de datos PostgreSQL.");
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexión", "Error al conectar a PostgreSQL.");
         }
     }
 
-    /*
-     * Consulta parametrizada a PostgreSQL para la Sesión 1.
-     */
-    private List<Producto> consultarProductosPostgreSQL(String busqueda, String categoria, boolean soloStock) throws SQLException {
-        List<Producto> lista = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT id_producto, codigo, nombre, categoria, precio, stock FROM producto WHERE 1=1");
-
-        if (busqueda != null && !busqueda.trim().isEmpty()) {
-            sql.append(" AND (nombre ILIKE ? OR codigo ILIKE ?)");
-        }
-
-        if (categoria != null && !categoria.equalsIgnoreCase("Todas") && !categoria.trim().isEmpty()) {
-            sql.append(" AND categoria = ?");
-        }
-
-        if (soloStock) {
-            sql.append(" AND stock > 0");
-        }
-
-        sql.append(" ORDER BY codigo ASC");
-
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-
-            int paramIndex = 1;
-
-            if (busqueda != null && !busqueda.trim().isEmpty()) {
-                String patron = "%" + busqueda.trim() + "%";
-                stmt.setString(paramIndex++, patron);
-                stmt.setString(paramIndex++, patron);
-            }
-
-            if (categoria != null && !categoria.equalsIgnoreCase("Todas") && !categoria.trim().isEmpty()) {
-                stmt.setString(paramIndex++, categoria.trim());
-            }
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    Producto prod = new Producto();
-                    prod.setIdProducto(rs.getInt("id_producto"));
-                    prod.setCodigo(rs.getString("codigo"));
-                    prod.setNombre(rs.getString("nombre"));
-                    prod.setCategoria(rs.getString("categoria"));
-                    prod.setPrecio(rs.getBigDecimal("precio"));
-                    prod.setStock(rs.getInt("stock"));
-
-                    lista.add(prod);
-                }
-            }
-        }
-        return lista;
-    }
-
+    // Metodo para reutilizar la creacion de ventanas emergentes / alertas
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alerta = new Alert(tipo);
         alerta.setTitle(titulo);
@@ -205,9 +304,4 @@ public class ProductoController {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
-
-    // Métodos de los botones del formulario (Pendientes para la Sesión 2)
-    @FXML private void accionGuardar() {}
-    @FXML private void accionActualizar() {}
-    @FXML private void accionEliminar() {}
 }
